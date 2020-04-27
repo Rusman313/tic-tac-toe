@@ -20,25 +20,21 @@ class Board extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
+    const boardSize = 3;
+    let squares = [];
+    for (let i = 0; i < boardSize; ++i) {
+      let row = [];
+      for (let j = 0; j < boardSize; ++j) {
+        row.push(this.renderSquare(i * boardSize + j));
+      }
+      squares.push(
+        <div key={i} className="board-row">
+          {row}
         </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+      );
+    }
+
+    return <div>{squares}</div>;
   }
 }
 
@@ -68,6 +64,7 @@ class Game extends React.Component {
       history: history.concat([
         {
           squares: squares,
+          latestMoveSquare: i,
         },
       ]),
       stepNumber: history.length,
@@ -88,10 +85,22 @@ class Game extends React.Component {
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
-      const desc = move ? "Go to move #" + move : "Go to game start";
+      const latestMoveSquare = step.latestMoveSquare;
+      const col = 1 + (latestMoveSquare % 3);
+      const row = 1 + Math.floor(latestMoveSquare / 3);
+      const desc = move
+        ? `Go to move #${move} (${col}, ${row})`
+        : "Go to game start";
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button
+            className={
+              move === this.stepNumber ? "move-list-selected-item" : ""
+            } /*supposed to make selected bold but not working the way I think it is supposed to */
+            onClick={() => this.jumpTo(move)}
+          >
+            {desc}
+          </button>
         </li>
       );
     });
